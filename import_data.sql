@@ -1,81 +1,81 @@
--- -- Criação de tabela temporária
--- CREATE TEMP TABLE temp_dados (
---     registro_ans VARCHAR(20),
---     cnpj VARCHAR(20),
---     razao_social VARCHAR(255),
---     nome_fantasia VARCHAR(255),
---     modalidade VARCHAR(100),
---     logradouro VARCHAR(255),
---     numero VARCHAR(20),
---     complemento VARCHAR(255),
---     bairro VARCHAR(100),
---     cidade VARCHAR(100),
---     uf CHAR(2),
---     cep VARCHAR(10),
---     ddd VARCHAR(5),
---     telefone VARCHAR(20),
---     fax VARCHAR(20),
---     endereco_eletronico VARCHAR(255),
---     representante VARCHAR(255),
---     cargo_representante VARCHAR(100),
---     regiao_de_comercializacao INT,
---     data_registro_ans DATE
--- );
+-- Criação de tabela temporária
+CREATE TEMP TABLE temp_dados (
+    registro_ans VARCHAR(20),
+    cnpj VARCHAR(20),
+    razao_social VARCHAR(255),
+    nome_fantasia VARCHAR(255),
+    modalidade VARCHAR(100),
+    logradouro VARCHAR(255),
+    numero VARCHAR(20),
+    complemento VARCHAR(255),
+    bairro VARCHAR(100),
+    cidade VARCHAR(100),
+    uf CHAR(2),
+    cep VARCHAR(10),
+    ddd VARCHAR(5),
+    telefone VARCHAR(20),
+    fax VARCHAR(20),
+    endereco_eletronico VARCHAR(255),
+    representante VARCHAR(255),
+    cargo_representante VARCHAR(100),
+    regiao_de_comercializacao INT,
+    data_registro_ans DATE
+);
 
--- -- Importação dos dados do CSV para a tabela temporária
--- \copy temp_dados FROM 'anexos/Relatorio_cadop.csv' DELIMITER ';' CSV HEADER ENCODING 'UTF8';
+-- Importação dos dados do CSV para a tabela temporária
+\copy temp_dados FROM 'anexos/Relatorio_cadop.csv' DELIMITER ';' CSV HEADER ENCODING 'UTF8';
 
--- -- Inserção dos dados nas tabelas correspondentes
--- -- Tabela enderecos
--- INSERT INTO enderecos (logradouro, numero, complemento, bairro, cidade, uf, cep)
--- SELECT DISTINCT logradouro, numero, complemento, bairro, cidade, uf, cep
--- FROM temp_dados;
+-- Inserção dos dados nas tabelas correspondentes
+-- Tabela enderecos
+INSERT INTO enderecos (logradouro, numero, complemento, bairro, cidade, uf, cep)
+SELECT DISTINCT logradouro, numero, complemento, bairro, cidade, uf, cep
+FROM temp_dados;
 
--- -- Tabela contatos
--- INSERT INTO contatos (ddd, telefone, fax, endereco_eletronico)
--- SELECT DISTINCT ddd, telefone, fax, endereco_eletronico
--- FROM temp_dados;
+-- Tabela contatos
+INSERT INTO contatos (ddd, telefone, fax, endereco_eletronico)
+SELECT DISTINCT ddd, telefone, fax, endereco_eletronico
+FROM temp_dados;
 
--- -- Tabela representantes
--- INSERT INTO representantes (representante, cargo_representante)
--- SELECT DISTINCT representante, cargo_representante
--- FROM temp_dados;
+-- Tabela representantes
+INSERT INTO representantes (representante, cargo_representante)
+SELECT DISTINCT representante, cargo_representante
+FROM temp_dados;
 
--- -- Tabela operadoras
--- INSERT INTO operadoras (
---     registro_ans, cnpj, razao_social, nome_fantasia, modalidade,
---     endereco_id, contato_id, representante_id, regiao_de_comercializacao, data_registro_ans
--- )
--- SELECT
---     t.registro_ans,
---     t.cnpj,
---     t.razao_social,
---     t.nome_fantasia,
---     t.modalidade,
---     e.id AS endereco_id,
---     c.id AS contato_id,
---     r.id AS representante_id,
---     t.regiao_de_comercializacao,
---     t.data_registro_ans
--- FROM temp_dados t
--- LEFT JOIN enderecos e
---     ON COALESCE(e.logradouro, '') = COALESCE(t.logradouro, '')
---     AND COALESCE(e.numero, '') = COALESCE(t.numero, '')
---     AND COALESCE(e.complemento, '') = COALESCE(t.complemento, '')
---     AND COALESCE(e.bairro, '') = COALESCE(t.bairro, '')
---     AND COALESCE(e.cidade, '') = COALESCE(t.cidade, '')
---     AND COALESCE(e.uf, '') = COALESCE(t.uf, '')
---     AND COALESCE(e.cep, '') = COALESCE(t.cep, '')
--- LEFT JOIN contatos c
---     ON COALESCE(c.ddd, '') = COALESCE(t.ddd, '')
---     AND COALESCE(c.telefone, '') = COALESCE(t.telefone, '')
---     AND COALESCE(c.fax, '') = COALESCE(t.fax, '')
---     AND COALESCE(c.endereco_eletronico, '') = COALESCE(t.endereco_eletronico, '')
--- LEFT JOIN representantes r
---     ON COALESCE(r.representante, '') = COALESCE(t.representante, '')
---     AND COALESCE(r.cargo_representante, '') = COALESCE(t.cargo_representante, '');
+-- Tabela operadoras
+INSERT INTO operadoras (
+    registro_ans, cnpj, razao_social, nome_fantasia, modalidade,
+    endereco_id, contato_id, representante_id, regiao_de_comercializacao, data_registro_ans
+)
+SELECT
+    t.registro_ans,
+    t.cnpj,
+    t.razao_social,
+    t.nome_fantasia,
+    t.modalidade,
+    e.id AS endereco_id,
+    c.id AS contato_id,
+    r.id AS representante_id,
+    t.regiao_de_comercializacao,
+    t.data_registro_ans
+FROM temp_dados t
+LEFT JOIN enderecos e
+    ON COALESCE(e.logradouro, '') = COALESCE(t.logradouro, '')
+    AND COALESCE(e.numero, '') = COALESCE(t.numero, '')
+    AND COALESCE(e.complemento, '') = COALESCE(t.complemento, '')
+    AND COALESCE(e.bairro, '') = COALESCE(t.bairro, '')
+    AND COALESCE(e.cidade, '') = COALESCE(t.cidade, '')
+    AND COALESCE(e.uf, '') = COALESCE(t.uf, '')
+    AND COALESCE(e.cep, '') = COALESCE(t.cep, '')
+LEFT JOIN contatos c
+    ON COALESCE(c.ddd, '') = COALESCE(t.ddd, '')
+    AND COALESCE(c.telefone, '') = COALESCE(t.telefone, '')
+    AND COALESCE(c.fax, '') = COALESCE(t.fax, '')
+    AND COALESCE(c.endereco_eletronico, '') = COALESCE(t.endereco_eletronico, '')
+LEFT JOIN representantes r
+    ON COALESCE(r.representante, '') = COALESCE(t.representante, '')
+    AND COALESCE(r.cargo_representante, '') = COALESCE(t.cargo_representante, '');
 
--- DROP TABLE temp_dados;
+DROP TABLE temp_dados;
 
 -- -- Tabela despesas
 DO $$DECLARE 
